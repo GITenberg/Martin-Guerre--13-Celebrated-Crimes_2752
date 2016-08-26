@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: KzBRQnWg0ZRaseh+zzalG7SWiLrPzX1Qps6fvkoXl4+WAN9LUHTQNTZpwGprO2HgzajKqKdem4VNQ3NDJPAL04BzY+jcSf5IvCmhGKPyrKHMV1uqdBiGnqccyM0day/ZRqyHwmAKI/0/++rxmf0LzXj7Xeadzcmwb8GOWDYiTaGfKKC9p0yLC/sKabK/wb7q7Vw7o0BXYwozLhYobyTcUWsUDztQpNso0BlwE0DpfMGxfHGUiFHZDvno/MOOmLskobKwvHOwXq41ZDgXUUsXwugqdPvKyg4pndPx1zQN41+x8ZHKIEuczxeFQLV05JVEF5eWAewS9cfZ21P0c4XL0Zs4CpYRmQvH+sIPrJEK8sa3ARhIQIGP6AsQk9c4jgV2i5I2qe88wrZCdq6aa6a/LB+G3HGjir10EfEMnm5WYsqDHhYmbZxUn9PPTnF0QZsYH8FIR4fLsBP2VamfR/u7tzdiMFbaoSiUU+3F6mkn8WdkuXb7xCCKEds0Ry50O+4HOmIGJsQZ7C6d/Pnek4pMIC8sDye8xWzwPESMuNqpJSC9G8flTXs4l/4ASbH2+OtpFc0wtcApxnnh8/3Yp67osb1QB/9e6v0rbo8ehGFDycZOBSuOHRWQ2s5kSRkkTyo85yoEeaKMJXc6dYyb5Ml8KCMf267X7b/giKWzniuME4I=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Martin-Guerre--13-Celebrated-Crimes_2752
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
